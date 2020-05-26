@@ -4,7 +4,7 @@
   "description": "API for concessionaria",
   "main": "server.js",
   "scripts": {
-    "test": "set DEBUG=express:* && nodemon server.js --debug",
+    "api": "set DEBUG=express:* && nodemon server.js --debug",
     "lint": "eslint *.js --ignore-pattern node_modules/"
   },
   "keywords": [
