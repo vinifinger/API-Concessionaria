@@ -62,7 +62,8 @@ module.exports.getInfosCarById =
                 tbc.destaque,
                 tbc.vendido,
                 tbc.deletado,
-                tbc.data_entrada
+                tbc.data_entrada,
+                tbc.data_atualizacao
             FROM tb_carros tbc
                 INNER JOIN tb_carros_opcionais tbca
                 ON tbc.id = tbca.id_carro
@@ -307,7 +308,47 @@ module.exports.insertInfosCar =
         }).catch(next);
     }
 
+module.exports.updateInfosCar = 
+    function updateInfosCar(req, res, next) {
+        const parametros = req.body;
+        const colunas = Object.keys(parametros);
+        const valores = Object.values(parametros);
+        var estrutura = '';
 
+        for (let i = 0; i < colunas.length; i++) {
+            estrutura += "" + colunas[i] + " = '" + valores[i] + "', ";
+        }
+        console.log(estrutura);
+        const query = `
+            DECLARE @query VARCHAR(MAX)
+
+            SET @query = '
+            UPDATE tb_carros SET
+            ' + @estrutura + '
+            data_atualizacao = GETDATE()
+            WHERE id = ' + CAST(@id AS Varchar(MAX))
+
+            PRINT(@query);
+
+            EXEC(@query);
+        `;
+        const inputs = [
+            {
+                nome: 'id',
+                valor: parseInt(req.params.id)
+            }, 
+            {
+                nome: 'estrutura',
+                valor: estrutura
+            }
+        ];
+        
+        const response = new sqlExecuter({query, inputs});
+
+        response.consultaBanco().then((result) => {
+            res.status(200).json(retorno({ data: result.recordsets[0] }));
+        }).catch(next);
+    }
 
 
 
