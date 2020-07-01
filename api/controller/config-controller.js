@@ -17,7 +17,7 @@ module.exports.getInfosBase = (req, res, next) => {
 module.exports.updateInfosBase = (req, res, next) => {
     const parametros = req.body;
     const colunas = Object.keys(parametros);
-    const valores = Object.values(parametros);
+    const valores = Object.values(parametros);  
     var estrutura = '';
     for (let i = 0; i < colunas.length; i++) {
         if (i + 1 < colunas.length){
