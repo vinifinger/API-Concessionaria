@@ -6,5 +6,6 @@ const router = express.Router();
 //Exemplo de rota
 //router.route('caminho').get([controller].[Nome Função]);getInfos
 router.route('/login').get(controller.checkLogin);
+router.route('/signup').post(controller.signUpLogin);
 
 module.exports = router;

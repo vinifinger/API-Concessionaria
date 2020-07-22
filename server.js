@@ -1,6 +1,6 @@
 const apis = require('./config/api-config');
 
-var port = 3000; // Porta do servidor
+const port = 3000; // Porta do servidor
 
 apis.app.listen(port);
 

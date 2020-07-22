@@ -12,6 +12,10 @@ module.exports = (req, res, next) => {
             return res.status(401).json({ error: 'Token invalid' });
         
         req.id = decoded.id;
+        req.usuario = decoded.usuario;
+        req.nome = decoded.nome;
+        req.permissao = decoded.permissao;
+
         return next();
     })
 }

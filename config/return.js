@@ -1,7 +1,9 @@
 module.exports = function objReturn({
-    data = null
+    data = null,
+    user = null
   }) {
     const obj = {
+      user,
       data
     };
   

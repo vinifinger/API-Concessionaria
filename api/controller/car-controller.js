@@ -1,403 +1,196 @@
-const sqlExecuter = require('../../config/db-config');
+const knexfile = (require('../../config/knexfile'));
+const knex = require('knex')(knexfile.development);
 const retorno = require('../../config/return');
+const moment = require('moment');
+const timestamp = moment().format('DD/MM/YYYY HH:MM:SS');
 
+module.exports.getAllCar = async (req, res, next) => {
+    try {
+        const response = await 
+            knex.select(
+                'id', 
+                'nome', 
+                'marca', 
+                'ano', 
+                'valor')
+            .from('tb_carros')
+            .where('deletado', 0)
+            .where('vendido', 0);
 
-module.exports.getAllCar = (req, res, next) => {
-    const query = `
-        SELECT 
-            id, 
-            nome,  
-            marca,
-            ano,
-            valor
-        FROM tb_carros
-        WHERE deletado = 0
-    `;
-    const inputs = [];
-    
-    const response = new sqlExecuter({query, inputs});
-
-    response.consultaBanco().then((result) => {
-        res.status(200).json(retorno({ data: result.recordsets[0] }));
-    }).catch(next);
-}
-    
-module.exports.getInfosCarById = (req, res, next) => {
-    const query = `
-        SELECT 
-            tbc.id,
-            tbc.nome,
-            tbc.motor,
-            tbc.marca,
-            tbc.ano,
-            tbc.modelo,
-            tbc.tipo,
-            tbc.quilometragem,
-            tbc.valor,
-            tbc.num_portas,
-            tbc.direcao,
-            tbc.cor,
-            tbc.freio,
-            tbca.airbag,
-            tbca.alarme,
-            tbca.ar_condicionado,
-            tbca.camera_estacionamento,
-            tbca.computador_bordo,
-            tbca.corta_corrente,
-            tbca.farol_neblina,
-            tbca.hack,
-            tbca.insulfilme,
-            tbca.sensores_chuva,
-            tbca.sensores_estacionamento_frontal,
-            tbca.sensores_estacionamento_traseiro,
-            tbca.star_stop,
-            tbca.teto_solar,
-            tbca.trava_eletrica,
-            tbca.vidro_eletrico,
-            tbc.ipva_ano,
-            tbc.placa,
-            tbc.aro_pneu,
-            tbc.destaque,
-            tbc.vendido,
-            tbc.deletado,
-            tbc.data_entrada,
-            tbc.data_atualizacao
-        FROM tb_carros tbc
-            INNER JOIN tb_carros_opcionais tbca
-            ON tbc.id = tbca.id_carro
-        WHERE tbc.id = @id;
-    `;
-
-    const inputs = [
-        {
-            nome: 'id',
-            valor: req.params.id
-        }
-    ];
-
-    const response = new sqlExecuter({query, inputs});
-
-    response.consultaBanco().then((result) => {
-        res.status(200).json(retorno({ data: result.recordsets[0] }));
-    }).catch(next);
-}
-
-module.exports.insertInfosCar = (req, res, next) => {
-    const query = `
-    INSERT INTO tb_carros
-        (
-            nome, 
-            motor, 
-            marca, 
-            ano, 
-            modelo, 
-            cambio, 
-            tipo, 
-            quilometragem, 
-            valor, 
-            num_portas, 
-            direcao, 
-            cor, 
-            freio, 
-            ipva_ano, 
-            placa, 
-            aro_pneu
-        )
-    VALUES
-        (
-            @nome, 
-            @motor, 
-            @marca, 
-            @ano, 
-            @modelo, 
-            @cambio, 
-            @tipo, 
-            @quilometragem, 
-            @valor, 
-            @num_portas, 
-            @direcao, 
-            @cor, 
-            @freio, 
-            @ipva_ano, 
-            @placa, 
-            @aro_pneu
-        );
-
-    SET @id_carro = @@IDENTITY;
-        
-    INSERT INTO tb_carros_opcionais 
-        (
-            id_carro, 
-            airbag, 
-            vidro_eletrico, 
-            ar_condicionado, 
-            trava_eletrica, 
-            teto_solar, 
-            farol_neblina, 
-            camera_estacionamento, 
-            sensores_chuva, 
-            sensores_estacionamento_frontal, 
-            sensores_estacionamento_traseiro, 
-            star_stop,
-            hack,
-            alarme,
-            corta_corrente,
-            insulfilme
-        )
-    VALUES
-        (
-            @id_carro,
-            @airbag,
-            @vidro_eletrico,
-            @ar_condicionado,
-            @trava_eletrica,
-            @teto_solar,
-            @farol_neblina,
-            @camera_estacionamento,
-            @sensores_chuva,
-            @sensores_estacionamento_frontal,
-            @sensores_estacionamento_traseiro,
-            @star_stop,
-            @hack,
-            @alarme,
-            @corta_corrente,
-            @insulfilme
-        );
-        
-
-    SELECT @id_carro AS [id_carro], @@IDENTITY AS [id_opcionais];
-    `
-    const inputs = [
-        {
-            nome: 'nome',
-            valor: req.body.nome
-        },
-        {
-            nome: 'motor',
-            valor: req.body.motor
-        },
-        {
-            nome: 'marca',
-            valor: req.body.marca
-        },
-        {
-            nome: 'ano',
-            valor: req.body.ano
-        },
-        {
-            nome: 'modelo',
-            valor: req.body.modelo
-        },
-        {
-            nome: 'cambio',
-            valor: req.body.cambio
-        },
-        {
-            nome: 'tipo',
-            valor: req.body.tipo
-        },
-        {
-            nome: 'quilometragem',
-            valor: req.body.quilometragem
-        },
-        {
-            nome: 'valor',
-            valor: req.body.valor
-        },
-        {
-            nome: 'num_portas',
-            valor: req.body.num_portas
-        },
-        {
-            nome: 'direcao',
-            valor: req.body.direcao
-        },
-        {
-            nome: 'cor',
-            valor: req.body.cor
-        },
-        {
-            nome: 'freio',
-            valor: req.body.freio
-        },
-        {
-            nome: 'ipva_ano',
-            valor: req.body.ipva_ano
-        },
-        {
-            nome: 'placa',
-            valor: req.body.placa
-        },
-        {
-            nome: 'aro_pneu',
-            valor: req.body.aro_pneu
-        },
-        {
-            nome: 'id_carro',
-            valor: 0
-        },
-        {
-            nome: 'airbag',
-            valor: req.body.airbag
-        },
-        {
-            nome: 'vidro_eletrico',
-            valor: req.body.vidro_eletrico
-        },
-        {
-            nome: 'ar_condicionado',
-            valor: req.body.ar_condicionado
-        },
-        {
-            nome: 'trava_eletrica',
-            valor: req.body.trava_eletrica
-        },
-        {
-            nome: 'teto_solar',
-            valor: req.body.teto_solar
-        },
-        {
-            nome: 'farol_neblina',
-            valor: req.body.farol_neblina
-        },
-        {
-            nome: 'camera_estacionamento',
-            valor: req.body.camera_estacionamento
-        },
-        {
-            nome: 'sensores_chuva',
-            valor: req.body.sensores_chuva
-        },
-        {
-            nome: 'sensores_estacionamento_frontal',
-            valor: req.body.sensores_estacionamento_frontal
-        },
-        {
-            nome: 'sensores_estacionamento_traseiro',
-            valor: req.body.sensores_estacionamento_traseiro
-        },
-        {
-            nome: 'star_stop',
-            valor: req.body.star_stop
-        },
-        {
-            nome: 'hack',
-            valor: req.body.hack
-        },
-        {
-            nome: 'alarme',
-            valor: req.body.alarme
-        },
-        {
-            nome: 'corta_corrente',
-            valor: req.body.corta_corrente
-        },
-        {
-            nome: 'insulfilme',
-            valor: req.body.insulfilme
-        }
-    ];
-    
-    const response = new sqlExecuter({query, inputs});
-
-    response.consultaBanco().then((result) => {
-        res.status(200).json(retorno({ data: result.recordsets[0] }));
-    }).catch(next);
-}
-
-module.exports.updateInfosCar = (req, res, next) => {
-    const parametros = req.body;
-    const colunas = Object.keys(parametros);
-    const valores = Object.values(parametros);
-    var estrutura = '';
-    for (let i = 0; i < colunas.length; i++) {
-        estrutura += "[" + colunas[i] + "] = '" + valores[i] + "', ";
+        return res.status(200).json(retorno({ data: response }));
+    } catch (err) {
+        return res.status(400).json(retorno({ data: err }));
     }
-    const query = `
-        DECLARE @query VARCHAR(MAX)
-
-        SET @query = '
-        UPDATE tb_carros SET
-        ' + @estrutura + '
-        data_atualizacao = GETDATE()
-        WHERE id = ' + CAST(@id AS Varchar(MAX))
-
-
-        EXEC(@query);
-    `;
-    const inputs = [
-        {
-            nome: 'id',
-            valor: parseInt(req.params.id)
-        }, 
-        {
-            nome: 'estrutura',
-            valor: estrutura
-        }
-    ];
-    
-    const response = new sqlExecuter({query, inputs});
-
-    response.consultaBanco().then((result) => {
-        res.status(200).json(retorno({ data: result.recordsets[0] }));
-    }).catch(next);
 }
-
-
-
-module.exports.updateInfosCarOptions = (req, res, next) => {
-    const parametros = req.body;
-    const colunas = Object.keys(parametros);
-    const valores = Object.values(parametros);
-    var estrutura = '';
-    for (let i = 0; i < colunas.length; i++) {
-        estrutura += "[" + colunas[i] + "] = '" + valores[i] + "', ";
-    }
-    const query = `
-        DECLARE @query VARCHAR(MAX)
-
-        SET @query = '
-        UPDATE tb_carros_opcionais SET
-        ' + @estrutura + '
-        data_atualizacao = GETDATE()
-        WHERE id_carro = ' + CAST(@id AS Varchar(MAX))
-
-        EXEC(@query);
-    `;
-    const inputs = [
-        {
-            nome: 'id',
-            valor: parseInt(req.params.id)
-        },
-        {
-            nome: 'estrutura',
-            valor: estrutura
-        }
-    ];
     
-    const response = new sqlExecuter({query, inputs});
+module.exports.getInfosCarById = async (req, res, next) => {
+    try {
+        const response = await 
+            knex.select(
+                'tb_carros.id',
+                'tb_carros.nome',
+                'tb_carros.motor',
+                'tb_carros.marca',
+                'tb_carros.ano',
+                'tb_carros.modelo',
+                'tb_carros.cambio',
+                'tb_carros.tipo',
+                'tb_carros.quilometragem',
+                'tb_carros.valor',
+                'tb_carros.num_portas',
+                'tb_carros.direcao',
+                'tb_carros.cor',
+                'tb_carros.freio',
+                'tb_carros.ipva_ano',
+                'tb_carros.placa',
+                'tb_carros.aro_pneu',
+                'tb_carros.destaque',
+                'tb_carros.vendido',
+                'tb_carros.deletado',
+                'tb_carros.data_entrada',
+                'tb_carros.data_atualizacao',
+                'tb_carros_opcionais.airbag',
+                'tb_carros_opcionais.vidro_eletrico',
+                'tb_carros_opcionais.ar_condicionado',
+                'tb_carros_opcionais.trava_eletrica',
+                'tb_carros_opcionais.teto_solar',
+                'tb_carros_opcionais.farol_neblina',
+                'tb_carros_opcionais.camera_estacionamento',
+                'tb_carros_opcionais.sensores_chuva',
+                'tb_carros_opcionais.sensores_estacionamento_frontal',
+                'tb_carros_opcionais.sensores_estacionamento_traseiro',
+                'tb_carros_opcionais.computador_bordo',
+                'tb_carros_opcionais.star_stop',
+                'tb_carros_opcionais.hack',
+                'tb_carros_opcionais.alarme',
+                'tb_carros_opcionais.corta_corrente',
+                'tb_carros_opcionais.insulfilme')
+            .from('tb_carros')
+            .innerJoin('tb_carros_opcionais', 'tb_carros_opcionais.id_carro', 'tb_carros.id')
+            .where('tb_carros.id', req.params.id);
 
-    response.consultaBanco().then((result) => {
-        res.status(200).json(retorno({ data: result.recordsets[0] }));
-    }).catch(next);
-}
-
-
-
-/*
-===== Exemplo de endpoint =====
-
-module.exports.[Nome Função] = (req, res, next) => {
-        const query = ``;
-        const inputs = [];
+            console.log(timestamp);
         
-        const response = new sqlExecuter({query, inputs});
-
-        response.consultaBanco().then((result) => {
-            res.status(200).json(retorno({ data: result.recordsets[0] }));
-        }).catch(next);
+        return res.status(200).json(retorno({ data: response }));
+    } catch (err) {
+        return res.status(400).json(retorno({ data: err }));
     }
+}
 
-*/
+module.exports.insertInfosCar = async (req, res) => {
+    try {
+        await knex('tb_carros')
+        .insert({
+            nome: req.body.nome,
+            motor: req.body.motor,
+            marca: req.body.motor,
+            ano: req.body.ano,
+            modelo: req.body.modelo,
+            cambio: req.body.cambio, 
+            tipo: req.body.tipo,
+            quilometragem: req.body.quilometragem,
+            valor: req.body.valor,
+            num_portas: req.body.num_portas,
+            direcao: req.body.direcao,
+            cor: req.body.cor,
+            freio: req.body.freio,
+            ipva_ano: req.body.ipva_ano,
+            placa: req.body.placa,
+            aro_pneu: req.body.aro_pneu,
+            destaque: 0,
+            vendido: 0,
+            deletado: 0,
+            data_entrada: timestamp,
+            data_atualizacao: timestamp
+        });
+        
+        const response = await knex.select('id').from('tb_carros').orderBy('id', 'DESC').limit(1);
+        await knex('tb_carros_opcionais')
+        .insert({
+            id_carro: response[0].id,
+            airbag: req.body.airbag,
+            vidro_eletrico: req.body.vidro_eletrico,
+            ar_condicionado: req.body.ar_condicionado,
+            trava_eletrica: req.body.trava_eletrica,
+            teto_solar: req.body.teto_solar,
+            farol_neblina: req.body.farol_neblina,
+            camera_estacionamento: req.body.camera_estacionamento,
+            sensores_chuva: req.body.sensores_chuva,
+            sensores_estacionamento_frontal: req.body.sensores_estacionamento_frontal,
+            sensores_estacionamento_traseiro: req.body.sensores_estacionamento_traseiro,
+            computador_bordo: req.body.computador_bordo,
+            star_stop: req.body.star_stop,
+            hack: req.body.hack,
+            alarme: req.body.alarme,
+            corta_corrente: req.body.corta_corrente,
+            insulfilme: req.body.insulfilme,
+            data_atualizacao: timestamp
+        });
 
-    
+        return res.status(200).json(retorno({ data: [{ message: 'Save' }] }));
+    } catch (err) {
+        return res.status(400).json(retorno({ data: err }));
+    }
+}
+
+module.exports.updateInfosCar = async (req, res) => {
+    try {
+        const response = await knex('tb_carros')
+        .update({
+            nome: req.body.nome,
+            motor: req.body.motor,
+            marca: req.body.motor,
+            ano: req.body.ano,
+            modelo: req.body.modelo,
+            cambio: req.body.cambio, 
+            tipo: req.body.tipo,
+            quilometragem: req.body.quilometragem,
+            valor: req.body.valor,
+            num_portas: req.body.num_portas,
+            direcao: req.body.direcao,
+            cor: req.body.cor,
+            freio: req.body.freio,
+            ipva_ano: req.body.ipva_ano,
+            placa: req.body.placa,
+            aro_pneu: req.body.aro_pneu,
+            destaque: req.body.deletado,
+            vendido: req.body.vendido,
+            deletado: req.body.deletado,
+            data_entrada: timestamp,
+            data_atualizacao: timestamp
+        }).where('id', req.params.id);
+        
+        return res.status(200).json(retorno({ data: [{ message: 'Save' }] }));
+    } catch (err) {
+        return res.status(400).json(retorno({ data: err }));
+    }
+}
+
+module.exports.updateInfosCarOptions = async (req, res) => {
+    try {
+        await knex('tb_carros_opcionais')
+        .update({
+            airbag: req.body.airbag,
+            vidro_eletrico: req.body.vidro_eletrico,
+            ar_condicionado: req.body.ar_condicionado,
+            trava_eletrica: req.body.trava_eletrica,
+            teto_solar: req.body.teto_solar,
+            farol_neblina: req.body.farol_neblina,
+            camera_estacionamento: req.body.camera_estacionamento,
+            sensores_chuva: req.body.sensores_chuva,
+            sensores_estacionamento_frontal: req.body.sensores_estacionamento_frontal,
+            sensores_estacionamento_traseiro: req.body.sensores_estacionamento_traseiro,
+            computador_bordo: req.body.computador_bordo,
+            star_stop: req.body.star_stop,
+            hack: req.body.hack,
+            alarme: req.body.alarme,
+            corta_corrente: req.body.corta_corrente,
+            insulfilme: req.body.insulfilme,
+            data_atualizacao: timestamp
+        }).where('id_carro', req.params.id);
+        
+        return res.status(200).json(retorno({ data: [{ message: 'Save' }] }));
+    } catch (err) {
+        return res.status(400).json(retorno({ data: err }));
+    }
+}   

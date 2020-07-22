@@ -1,180 +1,89 @@
-const sqlExecuter = require('../../config/db-config');
+const knexfile = (require('../../config/knexfile'));
+const knex = require('knex')(knexfile.development);
 const retorno = require('../../config/return');
+const moment = require('moment');
+const timestamp = moment().format('DD/MM/YYYY HH:MM:SS');
 
-module.exports.getInfosBase = (req, res, next) => {
-    const query = `
-        SELECT * FROM tb_config_geral
-    `;
-    const inputs = [];
-    
-    const response = new sqlExecuter({query, inputs});
+module.exports.getInfosBase = async (req, res, next) => {
+    try {
+        const response = await knex.select('*').from('tb_config_geral');
 
-    response.consultaBanco().then((result) => {
-        res.status(200).json(retorno({ data: result.recordsets[0] }));
-    }).catch(next);
-}
-
-module.exports.updateInfosBase = (req, res, next) => {
-    const parametros = req.body;
-    const colunas = Object.keys(parametros);
-    const valores = Object.values(parametros);  
-    var estrutura = '';
-    for (let i = 0; i < colunas.length; i++) {
-        if (i + 1 < colunas.length){
-            estrutura += "[" + colunas[i] + "] = '" + valores[i] + "', ";
-        } else {
-            estrutura += "[" + colunas[i] + "] = '" + valores[i] + "'";
-        }
+        return res.status(200).json(retorno({ data: response }));
+    } catch(err) {
+        return res.status(400).json(retorno({ data: err }));
     }
-    const query = `
-        DECLARE @query VARCHAR(MAX)
-
-        SET @query = '
-        UPDATE tb_config_geral SET
-        ' + @estrutura + '
-        WHERE id = ' + CAST(@id AS Varchar(MAX))
-
-        EXEC(@query);
-    `;
-    const inputs = [
-        {
-            nome: 'id',
-            valor: parseInt(req.params.id)
-        },
-        {
-            nome: 'estrutura',
-            valor: estrutura
-        }
-    ];
-    
-    const response = new sqlExecuter({query, inputs});
-
-    response.consultaBanco().then((result) => {
-        res.status(200).json(retorno({ data: result.recordsets[0] }));
-    }).catch(next);
 }
 
-module.exports.getInfosUsers = (req, res, next) => {
-    const query = `
-        SELECT * FROM tb_users WHERE ativo = 1
-    `;
-    const inputs = [];
-    
-    const response = new sqlExecuter({query, inputs});
+module.exports.updateInfosBase = async (req, res) => {
+    try {
+        await knex('tb_users')
+        .update({
+            nome_site: req.body.nome_site,
+            titulo: req.body.titulo,
+            descricao: req.body.descricao,
+            email: req.body.email,
+            cep: req.body.cep,
+            bairro: req.body.bairro,
+            rua: req.body.rua,
+            numero: req.body.numero,
+            cidade: req.body.cidade,
+            uf: req.body.uf,
+            referencia: req.body.referencia,
+            mapa: req.body.mapa,
+            telefone1: req.body.telefone1,
+            telefone2: req.body.telefone2,
+            telefone3: req.body.telefone3,
+            whatsapp: req.body.whatsapp,
+            facebook: req.body.facebook,
+            instagram: req.body.instagram
+        }).where('id', req.params.id);
 
-    response.consultaBanco().then((result) => {
-        res.status(200).json(retorno({ data: result.recordsets[0] }));
-    }).catch(next);
+        return res.status(200).json(retorno({ data: [{message: 'Save' }] }));
+    } catch(err) {
+        return res.status(400).json(retorno({ data: err }));
+    }
+}
+
+module.exports.getInfosUsers = async (req, res) => {
+    try {
+        const response = await knex.select('*').from('tb_users').where('ativo', 1);
+
+        return res.status(200).json(retorno({ data: response }));
+    } catch(err) {
+        return res.status(400).json(retorno({ data: err }));
+    }
 }    
 
-module.exports.insertInfosUser = (req, res, next) => {
-    const query = `
-        INSERT INTO tb_users (
-            [user],
-            senha,
-            nome,
-            email,
-            permissao
-        ) VALUES (
-            @user,
-            @senha,
-            @nome,
-            @email,
-            @permissao
-        );
+module.exports.insertInfosUser = async (req, res) => {
+    try {
+        await knex('tb_users')
+        .insert({
+            user: req.body.usuario,
+            senha: req.body.senha,
+            nome: req.body.nome,
+            email: req.body.email,
+            permissao: req.body.permissao,
+            ativo: 1
+        });
 
-        SELECT @@IDENTITY AS [id];
-    `;
-    const inputs = [
-        {
-            nome: 'user',
-            valor: req.body.user
-        },
-        {
-            nome: 'senha',
-            valor: req.body.senha
-        },
-        {
-            nome: 'nome',
-            valor: req.body.nome
-        },
-        {
-            nome: 'email',
-            valor: req.body.email
-        },
-        {
-            nome: 'permissao',
-            valor: req.body.permissao
-        }
-    ];
-    
-    const response = new sqlExecuter({query, inputs});
-
-    response.consultaBanco().then((result) => {
-        res.status(200).json(retorno({ data: result.recordsets[0] }));
-    }).catch(next);
-}
-
-module.exports.updateInfosUser = (req, res, next) => {
-    const parametros = req.body;
-    const colunas = Object.keys(parametros);
-    const valores = Object.values(parametros);
-    var estrutura = '';
-    for (let i = 0; i < colunas.length; i++) {
-        if (i + 1 < colunas.length){
-            estrutura += "[" + colunas[i] + "] = '" + valores[i] + "', ";
-        } else {
-            estrutura += "[" + colunas[i] + "] = '" + valores[i] + "'";
-        }
+        return res.status(200).json(retorno({ data: [{message: 'Save' }] }));
+    } catch(err) {
+        return res.status(400).json(retorno({ data: err }));
     }
-    const query = `
-        DECLARE @query VARCHAR(MAX)
-
-        SET @query = '
-        UPDATE tb_users SET
-        ' + @estrutura + '
-        WHERE id = ' + CAST(@id AS Varchar(MAX))
-
-        EXEC(@query);
-    `;
-    const inputs = [
-        {
-            nome: 'id',
-            valor: parseInt(req.params.id)
-        },
-        {
-            nome: 'estrutura',
-            valor: estrutura
-        }
-    ];
-    
-    const response = new sqlExecuter({query, inputs});
-
-    response.consultaBanco().then((result) => {
-        res.status(200).json(retorno({ data: result.recordsets[0] }));
-    }).catch(next);
 }
 
+module.exports.updateInfosUser = async (req, res) => {
+    try {
+        await knex('tb_users')
+        .update({
+            nome: req.body.nome,
+            email: req.body.email,
+            permissao: req.body.permissao,
+            ativo: req.body.ativo
+        }).where('id', req.params.id);
 
-
-
-
-
-
-
-    
-/*
-===== Exemplo de endpoint =====
-
-module.exports.[Nome Função] = (req, res, next) => {
-    const query = ``;
-    const inputs = [];
-    
-    const response = new sqlExecuter({query, inputs});
-
-    response.consultaBanco().then((result) => {
-        res.status(200).json(retorno({ data: result.recordsets[0] }));
-    }).catch(next);
+        return res.status(200).json(retorno({ data: [{message: 'Save' }] }));
+    } catch(err) {
+        return res.status(400).json(retorno({ data: err }));
+    }
 }
-
-*/
