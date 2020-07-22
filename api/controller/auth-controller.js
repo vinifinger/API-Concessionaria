@@ -1,4 +1,5 @@
-const sqlExecuter = require('../../config/db-config');
+const knexfile = (require('../../config/knexfile'));
+const knex = require('knex')(knexfile.development);
 const retorno = require('../../config/return');
 const jwt = require('jsonwebtoken');
 const auth = require('../../config/auth.json');
@@ -9,52 +10,42 @@ function geradorToken(params = {}) {
     });
 }
 
-module.exports.checkLogin = (req, res, next) => {
-    const query = `
-        SELECT
-            id, 
-            nome, 
-            email  
-        FROM tb_users 
-        WHERE ativo = 1 
-        AND [user] = @usuario 
-        AND senha = @senha
-    `;
-    const inputs = [
-        {
-            nome: 'usuario',
-            valor: req.body.usuario
-        },
-        {
-            nome: 'senha',
-            valor: req.body.senha
-        }
-    ];
-    
-    const response = new sqlExecuter({query, inputs});
-
-    response.consultaBanco().then((result) => {
-        if (result.rowsAffected[0]){
-            const id = result.recordsets[0].id;
-            return res.status(200).json({ data: result.recordset[0], token: geradorToken({ id: id }) });
-        } else {
-            return res.status(401).json(retorno({ data: 'Usuario e/ou senha inválido'}));
-        }
-    }).catch(next);
-}
-    
-/*
-===== Exemplo de endpoint =====
-
-module.exports.[Nome Função] = (req, res, next) => {
-        const query = ``;
-        const inputs = [];
+module.exports.checkLogin = async (req, res) => {
+    try {
+        const response = await 
+            knex('tb_users')
+            .where('user', req.body.usuario)
+            .where('senha', req.body.senha);
         
-        const response = new sqlExecuter({query, inputs});
-
-        response.consultaBanco().then((result) => {
-            res.status(200).json(retorno({ data: result.recordsets[0] }));
-        }).catch(next);
+        if (response){
+            const id = response.id;
+            const usuario = response.usuario;
+            const nome = response.nome;
+            const permissao = response.permissao;
+            
+            return res.status(200).json({ data: response, token: geradorToken({ id: id, usuario: usuario, nome: nome, permissao: permissao }) });
+        } else {
+            return res.status(401).json(retorno({ data: 'Usuario e/ou senha inválido' }));
+        }
+    } catch (err) {
+        return res.status(400).json(retorno({ data: err }));
     }
+}
 
-*/
+module.exports.signUpLogin = async (req, res) => {
+    try {
+        await knex('tb_users')
+        .insert({
+            user: req.body.usuario,
+            senha: req.body.senha,
+            nome: req.body.nome,
+            email: req.body.email,
+            permissao: 0,
+            ativo: 1
+        });
+            
+        res.status(200).json(retorno({ data: [{ message: 'Save' }] }));
+    } catch (err) {
+        res.status(400).json(retorno({ data: err }));
+    }
+}
