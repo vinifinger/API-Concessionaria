@@ -6,6 +6,8 @@ const router = express.Router();
 //Exemplo de rota
 //router.route('caminho').get([controller].[Nome Função]);
 router.route('/infos').get(controller.getAllCar);
+router.route('/infos/sold').get(controller.getAllCarSold);
+router.route('/infos/deleted').get(controller.getAllCarDeleted);
 router.route('/infos/:id').get(controller.getInfosCarById);
 router.route('/infos/insert').post(controller.insertInfosCar);
 router.route('/infos/update/:id').post(controller.updateInfosCar);

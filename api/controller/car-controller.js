@@ -17,6 +17,44 @@ module.exports.getAllCar = async (req, res, next) => {
             .where('deletado', 0)
             .where('vendido', 0);
 
+        return res.status(200).json(retorno({ data: response, user: [{ id: req.id, nome: req.nome }] }));
+    } catch (err) {
+        return res.status(400).json(retorno({ data: err }));
+    }
+}
+
+module.exports.getAllCarDeleted = async (req, res, next) => {
+    try {
+        const response = await 
+            knex.select(
+                'id', 
+                'nome', 
+                'marca', 
+                'ano', 
+                'valor')
+            .from('tb_carros')
+            .where('deletado', 1)
+            .where('vendido', 0);
+
+        return res.status(200).json(retorno({ data: response }));
+    } catch (err) {
+        return res.status(400).json(retorno({ data: err }));
+    }
+}
+
+module.exports.getAllCarSold = async (req, res, next) => {
+    try {
+        const response = await 
+            knex.select(
+                'id', 
+                'nome', 
+                'marca', 
+                'ano', 
+                'valor')
+            .from('tb_carros')
+            .where('deletado', 0)
+            .where('vendido', 1);
+
         return res.status(200).json(retorno({ data: response }));
     } catch (err) {
         return res.status(400).json(retorno({ data: err }));
@@ -68,8 +106,6 @@ module.exports.getInfosCarById = async (req, res, next) => {
             .from('tb_carros')
             .innerJoin('tb_carros_opcionais', 'tb_carros_opcionais.id_carro', 'tb_carros.id')
             .where('tb_carros.id', req.params.id);
-
-            console.log(timestamp);
         
         return res.status(200).json(retorno({ data: response }));
     } catch (err) {
@@ -135,7 +171,7 @@ module.exports.insertInfosCar = async (req, res) => {
 
 module.exports.updateInfosCar = async (req, res) => {
     try {
-        const response = await knex('tb_carros')
+        await knex('tb_carros')
         .update({
             nome: req.body.nome,
             motor: req.body.motor,
