@@ -8,9 +8,9 @@ module.exports.getInfosBase = async (req, res, next) => {
     try {
         const response = await knex.select('*').from('tb_config_geral');
 
-        return res.status(200).json(retorno({ data: response }));
+        return res.status(200).json(retorno({ data: response, user: req.user }));
     } catch(err) {
-        return res.status(400).json(retorno({ data: err }));
+        return res.status(400).json(retorno({ data: err, user: req.user }));
     }
 }
 
@@ -38,9 +38,9 @@ module.exports.updateInfosBase = async (req, res) => {
             instagram: req.body.instagram
         }).where('id', req.params.id);
 
-        return res.status(200).json(retorno({ data: [{message: 'Save' }] }));
+        return res.status(200).json(retorno({ data: [{message: 'Save' }], user: req.user }));
     } catch(err) {
-        return res.status(400).json(retorno({ data: err }));
+        return res.status(400).json(retorno({ data: err, user: req.user }));
     }
 }
 
@@ -48,9 +48,9 @@ module.exports.getInfosUsers = async (req, res) => {
     try {
         const response = await knex.select('*').from('tb_users').where('ativo', 1);
 
-        return res.status(200).json(retorno({ data: response }));
+        return res.status(200).json(retorno({ data: response, user: req.user }));
     } catch(err) {
-        return res.status(400).json(retorno({ data: err }));
+        return res.status(400).json(retorno({ data: err, user: req.user }));
     }
 }    
 
@@ -66,9 +66,9 @@ module.exports.insertInfosUser = async (req, res) => {
             ativo: 1
         });
 
-        return res.status(200).json(retorno({ data: [{message: 'Save' }] }));
+        return res.status(200).json(retorno({ data: [{message: 'Save' }], user: req.user }));
     } catch(err) {
-        return res.status(400).json(retorno({ data: err }));
+        return res.status(400).json(retorno({ data: err, user: req.user }));
     }
 }
 
@@ -82,8 +82,8 @@ module.exports.updateInfosUser = async (req, res) => {
             ativo: req.body.ativo
         }).where('id', req.params.id);
 
-        return res.status(200).json(retorno({ data: [{message: 'Save' }] }));
+        return res.status(200).json(retorno({ data: [{message: 'Save' }], user: req.user }));
     } catch(err) {
-        return res.status(400).json(retorno({ data: err }));
+        return res.status(400).json(retorno({ data: err, user: req.user }));
     }
 }

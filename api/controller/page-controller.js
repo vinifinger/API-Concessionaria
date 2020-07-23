@@ -8,9 +8,9 @@ module.exports.getPageInfos = async (req, res) => {
     try {
         const response = await knex.select('*').from('tb_pages').where('ativo', 1);
 
-        return res.status(200).json(retorno({ data: response }));
+        return res.status(200).json(retorno({ data: response, user: req.user }));
     } catch(err) {
-        return res.status(400).json(retorno({ data: err }));
+        return res.status(400).json(retorno({ data: err, user: req.user }));
     }
 }    
 
@@ -23,9 +23,9 @@ module.exports.insertInfosPage = async (req, res) => {
             conteudo: req.body.conteudo
         });
 
-        return res.status(200).json(retorno({ data: [{ message: 'Save' }] }));
+        return res.status(200).json(retorno({ data: [{ message: 'Save' }], user: req.user }));
     } catch(err) {
-        return res.status(400).json(retorno({ data: err }));
+        return res.status(400).json(retorno({ data: err, user: req.user }));
     }
 }
 
@@ -38,8 +38,8 @@ module.exports.updateInfosPage = async (req, res) => {
             conteudo: req.body.conteudo
         }).where('id', req.params.id);
 
-        return res.status(200).json(retorno({ data: [{ message: 'Save' }] }));
+        return res.status(200).json(retorno({ data: [{ message: 'Save' }], user: req.user }));
     } catch(err) {
-        return res.status(400).json(retorno({ data: err }));
+        return res.status(400).json(retorno({ data: err, user: req.user }));
     }
 }

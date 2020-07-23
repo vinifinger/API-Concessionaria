@@ -17,9 +17,9 @@ module.exports.getAllCar = async (req, res, next) => {
             .where('deletado', 0)
             .where('vendido', 0);
 
-        return res.status(200).json(retorno({ data: response, user: [{ id: req.id, nome: req.nome }] }));
+        return res.status(200).json(retorno({ data: response, user: req.user }));
     } catch (err) {
-        return res.status(400).json(retorno({ data: err }));
+        return res.status(400).json(retorno({ data: err, user: req.user }));
     }
 }
 
@@ -36,9 +36,9 @@ module.exports.getAllCarDeleted = async (req, res, next) => {
             .where('deletado', 1)
             .where('vendido', 0);
 
-        return res.status(200).json(retorno({ data: response }));
+        return res.status(200).json(retorno({ data: response, user: req.user }));
     } catch (err) {
-        return res.status(400).json(retorno({ data: err }));
+        return res.status(400).json(retorno({ data: err, user: req.user }));
     }
 }
 
@@ -55,9 +55,9 @@ module.exports.getAllCarSold = async (req, res, next) => {
             .where('deletado', 0)
             .where('vendido', 1);
 
-        return res.status(200).json(retorno({ data: response }));
+        return res.status(200).json(retorno({ data: response, user: req.user }));
     } catch (err) {
-        return res.status(400).json(retorno({ data: err }));
+        return res.status(400).json(retorno({ data: err, user: req.user }));
     }
 }
     
@@ -107,9 +107,9 @@ module.exports.getInfosCarById = async (req, res, next) => {
             .innerJoin('tb_carros_opcionais', 'tb_carros_opcionais.id_carro', 'tb_carros.id')
             .where('tb_carros.id', req.params.id);
         
-        return res.status(200).json(retorno({ data: response }));
+        return res.status(200).json(retorno({ data: response, user: req.user }));
     } catch (err) {
-        return res.status(400).json(retorno({ data: err }));
+        return res.status(400).json(retorno({ data: err, user: req.user }));
     }
 }
 
@@ -163,9 +163,9 @@ module.exports.insertInfosCar = async (req, res) => {
             data_atualizacao: timestamp
         });
 
-        return res.status(200).json(retorno({ data: [{ message: 'Save' }] }));
+        return res.status(200).json(retorno({ data: [{ message: 'Save' }], user: req.user }));
     } catch (err) {
-        return res.status(400).json(retorno({ data: err }));
+        return res.status(400).json(retorno({ data: err, user: req.user }));
     }
 }
 
@@ -196,9 +196,9 @@ module.exports.updateInfosCar = async (req, res) => {
             data_atualizacao: timestamp
         }).where('id', req.params.id);
         
-        return res.status(200).json(retorno({ data: [{ message: 'Save' }] }));
+        return res.status(200).json(retorno({ data: [{ message: 'Save' }], user: req.user }));
     } catch (err) {
-        return res.status(400).json(retorno({ data: err }));
+        return res.status(400).json(retorno({ data: err, user: req.user }));
     }
 }
 
@@ -225,8 +225,8 @@ module.exports.updateInfosCarOptions = async (req, res) => {
             data_atualizacao: timestamp
         }).where('id_carro', req.params.id);
         
-        return res.status(200).json(retorno({ data: [{ message: 'Save' }] }));
+        return res.status(200).json(retorno({ data: [{ message: 'Save' }], user: req.user }));
     } catch (err) {
-        return res.status(400).json(retorno({ data: err }));
+        return res.status(400).json(retorno({ data: err, user: req.user }));
     }
 }   

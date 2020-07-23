@@ -10,11 +10,20 @@ module.exports = (req, res, next) => {
     jwt.verify(authHeader, auth.secret, (err, decoded) => {
         if (err) 
             return res.status(401).json({ error: 'Token invalid' });
-        
-        req.id = decoded.id;
-        req.usuario = decoded.usuario;
-        req.nome = decoded.nome;
-        req.permissao = decoded.permissao;
+
+        req.user = { 
+            id: decoded.id,
+            usuario: decoded.usuario,
+            nome: decoded.nome,
+            permissao: decoded.permissao
+        }
+
+        if (req.method === 'POST') {
+            if (req.user.permissao)
+                return next();         
+            else 
+                return res.status(401).json({ error: 'User without permission' });
+        }
 
         return next();
     })
