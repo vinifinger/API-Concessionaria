@@ -175,7 +175,7 @@ module.exports.updateInfosCar = async (req, res) => {
         .update({
             nome: req.body.nome,
             motor: req.body.motor,
-            marca: req.body.motor,
+            marca: req.body.marca,
             ano: req.body.ano,
             modelo: req.body.modelo,
             cambio: req.body.cambio, 
@@ -189,10 +189,9 @@ module.exports.updateInfosCar = async (req, res) => {
             ipva_ano: req.body.ipva_ano,
             placa: req.body.placa,
             aro_pneu: req.body.aro_pneu,
-            destaque: req.body.deletado,
+            destaque: req.body.destaque,
             vendido: req.body.vendido,
             deletado: req.body.deletado,
-            data_entrada: timestamp,
             data_atualizacao: timestamp
         }).where('id', req.params.id);
         
